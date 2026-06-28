@@ -10,7 +10,7 @@ import ServiceRequest from './pages/ServiceRequest';
 import Contact from './pages/Contact';
 import { isCustomerAuthenticated, api, customerLogout, getStoredCustomer } from './services/api';
 import logoImg from './assets/logo.jpg';
-import { AlertTriangle, User, Mail, LogOut, CheckCircle, Copy, X, Wrench } from 'lucide-react';
+import { AlertTriangle, User, Mail, LogOut, CheckCircle, Copy, X, Wrench, Eye, EyeOff } from 'lucide-react';
 
 // Customer Account Dashboard Modal Overlay
 function AccountDashboardModal({ onClose, onLogout }) {
@@ -464,6 +464,8 @@ function AppContent() {
   const [authConfirmPassword, setAuthConfirmPassword] = useState('');
   const [authError, setAuthError] = useState(null);
   const [authLoading, setAuthLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // OTP / Forgot-Password step states
   const [authStep, setAuthStep] = useState('form'); // 'form' | 'otp' | 'forgot' | 'reset' | 'done'
@@ -883,7 +885,7 @@ function AppContent() {
               />
             </div>
             <h1 className="text-xl sm:text-2xl font-extrabold tracking-wider uppercase colourful-text-gradient px-4">
-              Thrinaina Electronic and Security System
+              Thrinaina Electronic Security Systems
             </h1>
             <p className="text-[10px] tracking-[0.25em] text-security-textGray uppercase mt-1">
               Customer Secure Access Portal
@@ -996,17 +998,29 @@ function AppContent() {
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold uppercase text-slate-355">New Password</label>
-                  <input type="password" required value={newPassword}
-                    onChange={e => setNewPassword(e.target.value)} placeholder="Min 6 characters"
-                    autoComplete="new-password"
-                    className="w-full bg-[#030712] border border-slate-805 focus:border-security-gold text-sm text-slate-200 rounded-xl px-4 py-3 focus:outline-none" />
+                  <div className="relative">
+                    <input type={showPassword ? 'text' : 'password'} required value={newPassword}
+                      onChange={e => setNewPassword(e.target.value)} placeholder="Min 6 characters"
+                      autoComplete="new-password"
+                      className="w-full bg-[#030712] border border-slate-805 focus:border-security-gold text-sm text-slate-200 rounded-xl pl-4 pr-11 py-3 focus:outline-none transition-colors duration-200" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-slate-300 focus:outline-none transition-colors duration-200">
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold uppercase text-slate-355">Confirm Password</label>
-                  <input type="password" required value={confirmNewPassword}
-                    onChange={e => setConfirmNewPassword(e.target.value)} placeholder="Re-enter password"
-                    autoComplete="new-password"
-                    className="w-full bg-[#030712] border border-slate-805 focus:border-security-gold text-sm text-slate-200 rounded-xl px-4 py-3 focus:outline-none" />
+                  <div className="relative">
+                    <input type={showConfirmPassword ? 'text' : 'password'} required value={confirmNewPassword}
+                      onChange={e => setConfirmNewPassword(e.target.value)} placeholder="Re-enter password"
+                      autoComplete="new-password"
+                      className="w-full bg-[#030712] border border-slate-805 focus:border-security-gold text-sm text-slate-200 rounded-xl pl-4 pr-11 py-3 focus:outline-none transition-colors duration-200" />
+                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-slate-300 focus:outline-none transition-colors duration-200">
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
                 <button type="submit" disabled={authLoading}
                   className="w-full py-4 bg-security-gold hover:bg-security-goldHover text-security-bg font-extrabold uppercase text-xs tracking-wider rounded-xl transition-all duration-300 shadow-gold-glow cursor-pointer">
@@ -1048,10 +1062,16 @@ function AppContent() {
                     </div>
                     <div className="space-y-1.5">
                       <label htmlFor="app_auth_password" className="text-xs font-bold uppercase text-slate-355">Password</label>
-                      <input type="password" id="app_auth_password" required autoComplete="new-password"
-                        value={authPassword} onChange={(e) => setAuthPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="w-full bg-[#030712] border border-slate-805 focus:border-security-gold text-sm text-slate-200 rounded-xl px-4 py-3 focus:outline-none" />
+                      <div className="relative">
+                        <input type={showPassword ? 'text' : 'password'} id="app_auth_password" required autoComplete="new-password"
+                          value={authPassword} onChange={(e) => setAuthPassword(e.target.value)}
+                          placeholder="••••••••"
+                          className="w-full bg-[#030712] border border-slate-805 focus:border-security-gold text-sm text-slate-200 rounded-xl pl-4 pr-11 py-3 focus:outline-none transition-colors duration-200" />
+                        <button type="button" onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-slate-300 focus:outline-none transition-colors duration-200">
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
                     </div>
                     <div className="text-right">
                       <button type="button" onClick={() => { setAuthStep('forgot'); setForgotEmail(authEmail); setAuthError(null); setOtpSuccess(''); }}
@@ -1089,17 +1109,29 @@ function AppContent() {
                     </div>
                     <div className="space-y-1.5">
                       <label htmlFor="app_auth_reg_password" className="text-xs font-bold uppercase text-slate-355">Password</label>
-                      <input type="password" id="app_auth_reg_password" required autoComplete="new-password"
-                        value={authPassword} onChange={(e) => setAuthPassword(e.target.value)}
-                        placeholder="Min 6 characters"
-                        className="w-full bg-[#030712] border border-slate-805 focus:border-security-gold text-sm text-slate-200 rounded-xl px-4 py-3 focus:outline-none" />
+                      <div className="relative">
+                        <input type={showPassword ? 'text' : 'password'} id="app_auth_reg_password" required autoComplete="new-password"
+                          value={authPassword} onChange={(e) => setAuthPassword(e.target.value)}
+                          placeholder="Min 6 characters"
+                          className="w-full bg-[#030712] border border-slate-805 focus:border-security-gold text-sm text-slate-200 rounded-xl pl-4 pr-11 py-3 focus:outline-none transition-colors duration-200" />
+                        <button type="button" onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-slate-300 focus:outline-none transition-colors duration-200">
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
                     </div>
                     <div className="space-y-1.5">
                       <label htmlFor="app_auth_confirm_password" className="text-xs font-bold uppercase text-slate-355">Confirm Password</label>
-                      <input type="password" id="app_auth_confirm_password" required autoComplete="new-password"
-                        value={authConfirmPassword} onChange={(e) => setAuthConfirmPassword(e.target.value)}
-                        placeholder="Re-enter password"
-                        className="w-full bg-[#030712] border border-slate-805 focus:border-security-gold text-sm text-slate-200 rounded-xl px-4 py-3 focus:outline-none" />
+                      <div className="relative">
+                        <input type={showConfirmPassword ? 'text' : 'password'} id="app_auth_confirm_password" required autoComplete="new-password"
+                          value={authConfirmPassword} onChange={(e) => setAuthConfirmPassword(e.target.value)}
+                          placeholder="Re-enter password"
+                          className="w-full bg-[#030712] border border-slate-805 focus:border-security-gold text-sm text-slate-200 rounded-xl pl-4 pr-11 py-3 focus:outline-none transition-colors duration-200" />
+                        <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-slate-300 focus:outline-none transition-colors duration-200">
+                          {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
                     </div>
                     <button type="submit" disabled={authLoading}
                       className="w-full py-4 bg-security-gold hover:bg-security-goldHover text-security-bg font-extrabold uppercase text-xs tracking-wider rounded-xl transition-all duration-300 shadow-gold-glow cursor-pointer">
