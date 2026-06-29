@@ -10,14 +10,14 @@ export default function Stats() {
     },
     {
       icon: <ShieldCheck className="w-7 h-7 text-security-gold" />,
-      value: '1,500+',
-      label: 'Installations Completed',
+      value: '1 Lakh +',
+      label: 'CCTV Cameras Installed',
       desc: 'Trusted by residential communities and corporate complexes.'
     },
     {
       icon: <Users className="w-7 h-7 text-security-gold" />,
-      value: '450+',
-      label: 'Happy Clients Served',
+      value: '90K+',
+      label: 'Happy Customers',
       desc: 'Residential and commercial clients trust our surveillance solutions.'
     },
     {

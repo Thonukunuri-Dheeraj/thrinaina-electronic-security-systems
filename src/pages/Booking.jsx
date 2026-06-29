@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { api, isCustomerAuthenticated, getStoredCustomer } from '../services/api';
 import { Calendar, Clock, Camera, FileText, Copy, AlertTriangle, ArrowRight, User, Phone, Mail, MapPin, Search } from 'lucide-react';
 
 export default function Booking() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successData, setSuccessData] = useState(null);
@@ -25,14 +26,8 @@ export default function Booking() {
   // Customer State
   const [customer, setCustomer] = useState(getStoredCustomer());
   const [isCustomerAuth, setIsCustomerAuth] = useState(isCustomerAuthenticated());
-  const [authTab, setAuthTab] = useState('login'); // 'login' or 'register'
-  const [authEmail, setAuthEmail] = useState('');
-  const [authPassword, setAuthPassword] = useState('');
-  const [authName, setAuthName] = useState('');
-  const [authPhone, setAuthPhone] = useState('');
-  const [authConfirmPassword, setAuthConfirmPassword] = useState('');
-  const [authError, setAuthError] = useState(null);
-  const [authLoading, setAuthLoading] = useState(false);
+  const [showAuthWarning, setShowAuthWarning] = useState(false);
+
   // Form State
   const [formData, setFormData] = useState({
     name: customer?.full_name || '',
@@ -46,99 +41,50 @@ export default function Booking() {
     additional_requirements: ''
   });
 
-  // Pre-fill user details and fetch history when logged in
+  // Sync auth state
+  useEffect(() => {
+    const syncAuth = () => {
+      setIsCustomerAuth(isCustomerAuthenticated());
+      const stored = getStoredCustomer();
+      setCustomer(stored);
+    };
+    window.addEventListener('storage', syncAuth);
+    return () => window.removeEventListener('storage', syncAuth);
+  }, []);
 
+  // Pre-fill / Restore state from navigation
+  useEffect(() => {
+    const stored = getStoredCustomer();
+    if (stored) {
+      setFormData(prev => ({
+        ...prev,
+        name: stored.full_name || prev.name,
+        email: stored.email || prev.email,
+        mobile: (stored.phone && stored.phone !== 'N/A') ? stored.phone : prev.mobile
+      }));
+    }
+    if (location.state?.originalState) {
+      setFormData(prev => ({
+        ...prev,
+        ...location.state.originalState
+      }));
+    }
+  }, [location, isCustomerAuth]);
 
-  // Email Login
-  const handleEmailLogin = async (e) => {
-    e.preventDefault();
-    setAuthError(null);
-
-    if (!authEmail.trim() || !authEmail.trim().toLowerCase().endsWith('@gmail.com')) {
-      setAuthError('Email must be a valid @gmail.com address');
-      return;
-    }
-
-    setAuthLoading(true);
-    try {
-      const res = await api.customerAuth.login(authEmail, authPassword);
-      if (res.success) {
-        setCustomer(res.user);
-        setIsCustomerAuth(true);
-        setFormData(prev => ({
-          ...prev,
-          name: res.user.full_name || '',
-          email: res.user.email || '',
-          mobile: (res.user.phone && res.user.phone !== 'N/A') ? res.user.phone : ''
-        }));
-        // Force header update
-        window.dispatchEvent(new Event('storage'));
-      }
-    } catch (err) {
-      setAuthError(err.message || 'Invalid email or password.');
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
-  // Registration
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    setAuthError(null);
-
-    if (!authName.trim()) {
-      setAuthError('Name is required');
-      return;
-    }
-    if (!/^[A-Za-z\s]+$/.test(authName)) {
-      setAuthError('Name must contain only letters');
-      return;
-    }
-    if (!authPhone.trim() || !/^\d{10}$/.test(authPhone)) {
-      setAuthError('Provide a valid 10-digit mobile number');
-      return;
-    }
-    if (!authEmail.trim() || !/^[A-Za-z0-9._%+-]+@gmail\.com$/i.test(authEmail)) {
-      setAuthError('Email must be a valid @gmail.com address');
-      return;
-    }
-    if (authPassword.length < 6) {
-      setAuthError('Password must be at least 6 characters long');
-      return;
-    }
-    if (authPassword !== authConfirmPassword) {
-      setAuthError('Passwords do not match');
-      return;
-    }
-
-    setAuthLoading(true);
-    try {
-      const res = await api.customerAuth.register({
-        full_name: authName,
-        email: authEmail,
-        phone: authPhone,
-        password: authPassword,
-        confirmPassword: authConfirmPassword
-      });
-      if (res.success) {
-        const loginRes = await api.customerAuth.login(authEmail, authPassword);
-        if (loginRes.success) {
-          setCustomer(loginRes.user);
-          setIsCustomerAuth(true);
-          setFormData(prev => ({
-            ...prev,
-            name: loginRes.user.full_name || '',
-            email: loginRes.user.email || '',
-            mobile: (loginRes.user.phone && loginRes.user.phone !== 'N/A') ? loginRes.user.phone : ''
-          }));
-          // Force header update
-          window.dispatchEvent(new Event('storage'));
-        }
-      }
-    } catch (err) {
-      setAuthError(err.message || 'Registration failed.');
-    } finally {
-      setAuthLoading(false);
+  const handleGuestInteraction = (e) => {
+    if (!isCustomerAuth) {
+      e.preventDefault();
+      e.stopPropagation();
+      setError("Authentication Required: Please sign in or sign up to schedule this installation.");
+      setTimeout(() => {
+        navigate('/login', {
+          state: {
+            from: location.pathname,
+            originalState: formData,
+            warning: "Authentication Required: Please sign in or sign up to schedule this installation."
+          }
+        });
+      }, 1500);
     }
   };
 
@@ -358,182 +304,7 @@ export default function Booking() {
     }
   };
 
-  // If customer is not logged in, render the inline auth card
-  if (!isCustomerAuth) {
-    return (
-      <div className="pt-28 pb-20 relative">
-        <div className="absolute inset-0 tech-grid opacity-20 pointer-events-none" />
-        <div className="max-w-md mx-auto px-4 sm:px-6 relative z-10">
-          <div className="text-center mb-8 animate-fade-in-up">
-            <span className="text-xs font-bold uppercase tracking-[0.25em] text-security-gold block mb-3">
-              Customer Portal
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight">
-              Access Thrinaina Platform
-            </h1>
-            <p className="text-xs text-security-textGray mt-1.5 leading-relaxed">
-              Please sign in to schedule installations, track requests, and manage bookings.
-            </p>
-          </div>
 
-          <div className="glass-panel p-6 sm:p-8 bg-security-card/75 border-slate-900/65 shadow-premium animate-fade-in-up">
-            {/* Tabs */}
-            <div className="flex bg-[#030712] p-1 rounded-xl mb-6 border border-slate-800">
-              <button
-                type="button"
-                onClick={() => { setAuthTab('login'); setAuthError(null); }}
-                className={`flex-1 py-2.5 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-200 ${
-                  authTab === 'login'
-                    ? 'bg-security-gold text-security-bg shadow-gold-glow'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                Sign In
-              </button>
-              <button
-                type="button"
-                onClick={() => { setAuthTab('register'); setAuthError(null); }}
-                className={`flex-1 py-2.5 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-200 ${
-                  authTab === 'register'
-                    ? 'bg-security-gold text-security-bg shadow-gold-glow'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                Sign Up
-              </button>
-            </div>
-
-            {authError && (
-              <div className="mb-4 p-3.5 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl text-xs font-semibold flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 shrink-0" />
-                <span>{authError}</span>
-              </div>
-            )}
-
-            {authTab === 'login' ? (
-              <form onSubmit={handleEmailLogin} className="space-y-4">
-                <div className="space-y-1.5">
-                  <label htmlFor="auth_email" className="text-xs font-bold uppercase text-slate-300">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    id="auth_email"
-                    required
-                    value={authEmail}
-                    onChange={(e) => setAuthEmail(e.target.value)}
-                    placeholder="name@gmail.com"
-                    className="w-full bg-[#030712] border border-slate-805 focus:border-security-gold text-sm text-slate-200 rounded-xl px-4 py-3 focus:outline-none"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label htmlFor="auth_password" className="text-xs font-bold uppercase text-slate-300">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    id="auth_password"
-                    required
-                    value={authPassword}
-                    onChange={(e) => setAuthPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full bg-[#030712] border border-slate-805 focus:border-security-gold text-sm text-slate-200 rounded-xl px-4 py-3 focus:outline-none"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={authLoading}
-                  className="w-full py-4 bg-security-gold hover:bg-security-goldHover text-security-bg font-extrabold uppercase text-xs tracking-wider rounded-xl transition-all duration-300 shadow-gold-glow cursor-pointer"
-                >
-                  {authLoading ? 'Signing In...' : 'Sign In'}
-                </button>
-              </form>
-            ) : (
-              <form onSubmit={handleRegister} className="space-y-4">
-                <div className="space-y-1.5">
-                  <label htmlFor="auth_name" className="text-xs font-bold uppercase text-slate-300">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    id="auth_name"
-                    required
-                    value={authName}
-                    onChange={(e) => setAuthName(e.target.value.replace(/[^A-Za-z\s]/g, ''))}
-                    placeholder="Enter full name"
-                    className="w-full bg-[#030712] border border-slate-805 focus:border-security-gold text-sm text-slate-200 rounded-xl px-4 py-3 focus:outline-none"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label htmlFor="auth_reg_email" className="text-xs font-bold uppercase text-slate-300">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    id="auth_reg_email"
-                    required
-                    value={authEmail}
-                    onChange={(e) => setAuthEmail(e.target.value)}
-                    placeholder="name@gmail.com"
-                    className="w-full bg-[#030712] border border-slate-805 focus:border-security-gold text-sm text-slate-200 rounded-xl px-4 py-3 focus:outline-none"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label htmlFor="auth_phone" className="text-xs font-bold uppercase text-slate-300">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    id="auth_phone"
-                    required
-                    value={authPhone}
-                    onChange={(e) => setAuthPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                    placeholder="10-digit number"
-                    className="w-full bg-[#030712] border border-slate-805 focus:border-security-gold text-sm text-slate-200 rounded-xl px-4 py-3 focus:outline-none"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label htmlFor="auth_reg_password" className="text-xs font-bold uppercase text-slate-300">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    id="auth_reg_password"
-                    required
-                    value={authPassword}
-                    onChange={(e) => setAuthPassword(e.target.value)}
-                    placeholder="Min 6 characters"
-                    className="w-full bg-[#030712] border border-slate-805 focus:border-security-gold text-sm text-slate-200 rounded-xl px-4 py-3 focus:outline-none"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label htmlFor="auth_confirm_password" className="text-xs font-bold uppercase text-slate-300">
-                    Confirm Password
-                  </label>
-                  <input
-                    type="password"
-                    id="auth_confirm_password"
-                    required
-                    value={authConfirmPassword}
-                    onChange={(e) => setAuthConfirmPassword(e.target.value)}
-                    placeholder="Re-enter password"
-                    className="w-full bg-[#030712] border border-slate-805 focus:border-security-gold text-sm text-slate-200 rounded-xl px-4 py-3 focus:outline-none"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={authLoading}
-                  className="w-full py-4 bg-security-gold hover:bg-security-goldHover text-security-bg font-extrabold uppercase text-xs tracking-wider rounded-xl transition-all duration-300 shadow-gold-glow cursor-pointer"
-                >
-                  {authLoading ? 'Creating Account...' : 'Create Account'}
-                </button>
-              </form>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="pt-28 pb-20 relative">
@@ -649,12 +420,30 @@ export default function Booking() {
                 </div>
               </div>
             ) : (
-              <form
-                key={formKey}
-                onSubmit={handleSubmit}
-                noValidate
-                className="glass-panel p-6 sm:p-8 bg-security-card/75 border-slate-900 space-y-6 shadow-premium text-left"
-              >
+              <div className="w-full">
+                {!isCustomerAuth && (
+                  <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-xl text-xs font-semibold flex items-center justify-between gap-4 w-full animate-pulse">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 shrink-0 text-security-gold" />
+                      <span>Authentication Required: Please sign in or sign up to schedule this installation.</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => navigate('/login', { state: { from: location.pathname } })}
+                      className="px-3.5 py-2 bg-security-gold hover:bg-security-goldHover text-security-bg font-extrabold uppercase text-[10px] tracking-wider rounded-lg transition-colors cursor-pointer shrink-0"
+                    >
+                      Sign In / Sign Up
+                    </button>
+                  </div>
+                )}
+                <form
+                  key={formKey}
+                  onSubmit={handleSubmit}
+                  onClickCapture={handleGuestInteraction}
+                  onFocusCapture={handleGuestInteraction}
+                  noValidate
+                  className="glass-panel p-6 sm:p-8 bg-security-card/75 border-slate-900 space-y-6 shadow-premium text-left"
+                >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Customer Name */}
                   <div className="space-y-2">
@@ -839,7 +628,8 @@ export default function Booking() {
                   </button>
                 </div>
               </form>
-            )}
+            </div>
+          )}
 
           </div>
         )}

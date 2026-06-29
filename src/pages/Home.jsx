@@ -13,7 +13,7 @@ export default function Home() {
   const faqs = [
     {
       q: 'Do you charge for a site survey before installation?',
-      a: 'For commercial premises and housing societies in Hyderabad, we offer free site visits and surveillance layout mapping. For residential installations, a nominal visit fee is adjusted against the final invoice upon booking confirmation.'
+      a: 'For commercial premises and housing societies in and near Hyderabad, we offer free site visits and surveillance layout mapping. For residential installations, a nominal visit fee is adjusted against the final invoice upon booking confirmation.'
     },
     {
       q: 'Are the cameras and recorders certified?',
@@ -29,7 +29,7 @@ export default function Home() {
     },
     {
       q: 'What is the standard warranty on security systems?',
-      a: 'All our cameras and DVRs/NVRs carry a 2-year manufacturer hardware warranty. The hard disk drives carry a 3-year warranty, and we provide 1-year free on-site installation support for any wiring or setup tweaks.'
+      a: 'All our cameras and DVRs/NVRs carry a 1-year manufacturer hardware warranty. The hard disk drives carry a 3-year warranty, and we provide 1-year free on-site installation support for any wiring or setup tweaks.'
     }
   ];
 
@@ -90,7 +90,7 @@ export default function Home() {
       </header>
 
       {/* 2. Company Introduction */}
-      <section className="py-24 bg-[#0C1224]/30 border-t border-slate-900 relative">
+      <section id="about" className="py-24 bg-[#0C1224]/30 border-t border-slate-900 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Animated Single Feed CCTV Monitor Display Panel */}

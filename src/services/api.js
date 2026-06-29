@@ -27,19 +27,42 @@ export const logout = () => {
 export const setCustomerToken = (token) => {
   if (token) {
     localStorage.setItem(CUSTOMER_TOKEN_KEY, token);
+    localStorage.setItem('thrinaina_customer_login_time', Date.now().toString());
   } else {
     localStorage.removeItem(CUSTOMER_TOKEN_KEY);
+    localStorage.removeItem('thrinaina_customer_login_time');
   }
 };
 
-export const getCustomerToken = () => localStorage.getItem(CUSTOMER_TOKEN_KEY);
+export const getCustomerToken = () => {
+  const token = localStorage.getItem(CUSTOMER_TOKEN_KEY);
+  const loginTime = localStorage.getItem('thrinaina_customer_login_time');
+  
+  if (token && loginTime) {
+    const sixtyDaysMs = 60 * 24 * 60 * 60 * 1000;
+    if (Date.now() - parseInt(loginTime, 10) > sixtyDaysMs) {
+      // Auto logout on expiration
+      customerLogout();
+      return null;
+    }
+    return token;
+  }
+  return null;
+};
+
 export const isCustomerAuthenticated = () => !!getCustomerToken();
+
 export const customerLogout = () => {
-  setCustomerToken(null);
+  localStorage.removeItem(CUSTOMER_TOKEN_KEY);
+  localStorage.removeItem('thrinaina_customer_login_time');
   localStorage.removeItem(CUSTOMER_USER_KEY);
 };
 
 export const getStoredCustomer = () => {
+  // Check if token has expired first
+  if (!isCustomerAuthenticated()) {
+    return null;
+  }
   const user = localStorage.getItem(CUSTOMER_USER_KEY);
   return user ? JSON.parse(user) : null;
 };
