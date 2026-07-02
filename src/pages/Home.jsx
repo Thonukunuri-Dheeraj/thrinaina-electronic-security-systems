@@ -55,7 +55,7 @@ export default function Home() {
                 </span>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-100 leading-none">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-100 leading-tight sm:leading-none">
                 Smart Security Solutions For <br />
                 <span className="gold-text-gradient glowing-text-gold">Home & Business Surveillance</span>
               </h1>

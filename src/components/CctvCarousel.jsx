@@ -113,7 +113,7 @@ export default function CctvCarousel() {
       {/* Carousel active slide */}
       <div className="flex flex-col items-center gap-3 relative min-h-[240px] sm:min-h-[315px] lg:min-h-[355px] w-full">
         {/* Static Camera Image Display Area (Centered in one spot) */}
-        <div className="h-34 sm:h-44 lg:h-52 flex items-center justify-center relative overflow-visible w-full">
+        <div className="h-40 sm:h-44 lg:h-52 flex items-center justify-center relative overflow-visible w-full">
           {cameras.map((cam, idx) => (
             <div
               key={cam.id}
@@ -166,7 +166,7 @@ export default function CctvCarousel() {
             <button
               key={idx}
               onClick={() => setActiveIndex(idx)}
-              className={`w-2 h-2 rounded-full transition-all duration-300 border cursor-pointer ${
+              className={`p-0 w-2 h-2 rounded-full transition-all duration-300 border cursor-pointer block shrink-0 ${
                 idx === activeIndex
                   ? 'bg-security-gold border-security-gold w-5'
                   : 'bg-slate-950 border-slate-800 hover:border-slate-700'
@@ -180,14 +180,14 @@ export default function CctvCarousel() {
         <div className="flex items-center gap-1.5">
           <button
             onClick={handlePrev}
-            className="p-1.5 rounded-lg border border-slate-850 hover:border-security-gold bg-slate-950/60 hover:bg-security-gold hover:text-security-bg text-slate-400 transition-all duration-200 cursor-pointer"
+            className="p-1.5 rounded-lg border border-slate-850 hover:border-security-gold bg-slate-950/60 hover:bg-security-gold hover:text-security-bg text-slate-400 transition-all duration-200 cursor-pointer flex items-center justify-center"
             title="Previous Camera"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={handleNext}
-            className="p-1.5 rounded-lg border border-slate-850 hover:border-security-gold bg-slate-950/60 hover:bg-security-gold hover:text-security-bg text-slate-400 transition-all duration-200 cursor-pointer"
+            className="p-1.5 rounded-lg border border-slate-850 hover:border-security-gold bg-slate-950/60 hover:bg-security-gold hover:text-security-bg text-slate-400 transition-all duration-200 cursor-pointer flex items-center justify-center"
             title="Next Camera"
           >
             <ChevronRight className="w-3.5 h-3.5" />

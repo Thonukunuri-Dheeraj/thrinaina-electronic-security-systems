@@ -51,21 +51,22 @@ export default function Navbar({ onProfileClick }) {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? 'bg-security-bg/90 backdrop-blur-md border-b border-slate-800 shadow-lg py-3'
-          : 'bg-transparent border-b border-transparent py-5'
+    <>
+      <nav
+        className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-300 ${
+          isScrolled || isOpen
+            ? 'bg-security-bg/90 backdrop-blur-md border-b border-slate-800 shadow-lg py-3'
+            : 'bg-transparent border-b border-transparent py-3 md:py-5'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+        <div className="flex justify-between items-center h-16 md:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center group">
             <img
               src={logoImg}
               alt="Thrinaina Electronic Security System"
-              className="h-16 w-auto object-contain rounded-xl drop-shadow-lg transition-transform duration-300 group-hover:scale-105"
+              className="h-12 md:h-16 w-auto object-contain rounded-xl drop-shadow-lg transition-transform duration-300 group-hover:scale-105"
             />
           </Link>
 
@@ -152,7 +153,7 @@ export default function Navbar({ onProfileClick }) {
           {/* Mobile hamburger menu */}
           <div className="md:hidden flex items-center">
             <button
-              onClick={() => setIsOpen(!isOpen)}
+              onClick={() => setIsOpen(prev => !prev)}
               className="p-2 rounded-lg text-slate-400 hover:text-slate-100 focus:outline-none transition-colors duration-200"
             >
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -160,80 +161,81 @@ export default function Navbar({ onProfileClick }) {
           </div>
         </div>
       </div>
+    </nav>
 
-      {/* Mobile Drawer */}
-      <div
-        className={`md:hidden fixed top-[89px] left-0 right-0 bottom-0 bg-security-bg/95 backdrop-blur-lg border-t border-slate-800 transition-all duration-300 transform ${
-          isOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'
-        }`}
-      >
-        <div className="px-4 py-6 space-y-4">
-          {navLinks.map((link) => {
-            return (
-              <Link
-                key={link.name}
-                to={link.path}
-                onClick={() => setIsOpen(false)}
-                className={`block px-4 py-3 text-base font-semibold rounded-xl transition-all duration-300 ${
-                  isActive(link.path)
-                    ? 'text-security-gold bg-security-card border-l-4 border-security-gold'
-                    : 'text-slate-300 hover:text-security-gold hover:bg-slate-900/50'
-                }`}
-              >
-                {link.name}
-              </Link>
-            );
-          })}
+    {/* Mobile Drawer */}
+    <div
+      className={`md:hidden fixed top-[88px] left-0 right-0 bottom-0 z-50 bg-security-bg/95 backdrop-blur-lg border-t border-slate-800 transition-all duration-300 transform overflow-y-auto ${
+        isOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'
+      }`}
+    >
+      <div className="px-4 py-6 space-y-4">
+        {navLinks.map((link) => {
+          return (
+            <Link
+              key={link.name}
+              to={link.path}
+              onClick={() => setIsOpen(false)}
+              className={`block px-4 py-3 text-base font-semibold rounded-xl transition-all duration-300 ${
+                isActive(link.path)
+                  ? 'text-security-gold bg-security-card border-l-4 border-security-gold'
+                  : 'text-slate-300 hover:text-security-gold hover:bg-slate-900/50'
+              }`}
+            >
+              {link.name}
+            </Link>
+          );
+        })}
 
-          <hr className="border-slate-800 my-4" />
+        <hr className="border-slate-800 my-4" />
 
-          {isCustomer ? (
-            <div className="space-y-2">
-              <div className="flex items-center gap-3 p-3 bg-slate-950/40 border border-slate-900 rounded-xl">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-900 via-slate-950 to-security-blue/40 border border-security-gold/40 flex items-center justify-center text-security-gold shrink-0 relative">
-                  <User className="w-5.5 h-5.5 text-security-gold" strokeWidth={2.2} />
-                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-slate-950 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse" />
+        {isCustomer ? (
+          <div className="space-y-2">
+            <div className="flex items-center gap-3 p-3 bg-slate-950/40 border border-slate-900 rounded-xl">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-900 via-slate-950 to-security-blue/40 border border-security-gold/40 flex items-center justify-center text-security-gold shrink-0 relative">
+                <User className="w-5.5 h-5.5 text-security-gold" strokeWidth={2.2} />
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-slate-950 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse" />
+              </div>
+              
+              <div className="flex-grow text-left truncate">
+                <div className="text-xs font-bold text-slate-100 truncate">
+                  {customerUser?.full_name || 'Customer'}
                 </div>
-                
-                <div className="flex-grow text-left truncate">
-                  <div className="text-xs font-bold text-slate-100 truncate">
-                    {customerUser?.full_name || 'Customer'}
-                  </div>
-                  <div className="text-[10px] text-security-textGray truncate">
-                    {customerUser?.email}
-                  </div>
+                <div className="text-[10px] text-security-textGray truncate">
+                  {customerUser?.email}
                 </div>
               </div>
-              <button
-                onClick={() => {
-                  setIsOpen(false);
-                  onProfileClick();
-                }}
-                className="flex items-center justify-center w-full py-3 bg-slate-900 border border-slate-800 text-xs font-bold uppercase tracking-wider text-slate-205 hover:text-security-gold rounded-xl cursor-pointer transition-all duration-300"
-              >
-                My Bookings
-              </button>
-              <button
-                onClick={() => {
-                  setIsOpen(false);
-                  handleLogout();
-                }}
-                className="flex items-center justify-center w-full py-3 bg-red-500/5 border border-red-500/20 text-xs font-bold uppercase tracking-wider text-red-500 hover:text-red-400 rounded-xl cursor-pointer transition-all duration-300"
-              >
-                Logout
-              </button>
             </div>
-          ) : (
-            <Link
-              to="/login"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center justify-center w-full py-3.5 bg-security-gold hover:bg-security-goldHover text-security-bg font-extrabold rounded-xl transition-all duration-300 shadow-gold-glow"
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                onProfileClick();
+              }}
+              className="flex items-center justify-center w-full py-3 bg-slate-900 border border-slate-800 text-xs font-bold uppercase tracking-wider text-slate-205 hover:text-security-gold rounded-xl cursor-pointer transition-all duration-300"
             >
-              Sign In / Sign Up
-            </Link>
-          )}
-        </div>
+              My Bookings
+            </button>
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                handleLogout();
+              }}
+              className="flex items-center justify-center w-full py-3 bg-red-500/5 border border-red-500/20 text-xs font-bold uppercase tracking-wider text-red-500 hover:text-red-400 rounded-xl cursor-pointer transition-all duration-300"
+            >
+              Logout
+            </button>
+          </div>
+        ) : (
+          <Link
+            to="/login"
+            onClick={() => setIsOpen(false)}
+            className="flex items-center justify-center w-full py-3.5 bg-security-gold hover:bg-security-goldHover text-security-bg font-extrabold rounded-xl transition-all duration-300 shadow-gold-glow"
+          >
+            Sign In / Sign Up
+          </Link>
+        )}
       </div>
-    </nav>
+    </div>
+  </>
   );
 }

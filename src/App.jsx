@@ -129,7 +129,7 @@ function AccountDashboardModal({ onClose, onLogout }) {
 
   return (
     <div className="fixed inset-0 z-[99999] bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="glass-panel max-w-3xl w-full border-slate-900/60 bg-security-card/95 shadow-gold-glow flex flex-col md:flex-row rounded-2xl overflow-hidden min-h-[480px] relative animate-fade-in-up">
+      <div className="glass-panel max-w-3xl w-full border-slate-900/60 bg-security-card/95 shadow-gold-glow flex flex-col md:flex-row rounded-2xl overflow-y-auto md:overflow-hidden max-h-[90vh] md:max-h-[none] min-h-[480px] relative animate-fade-in-up">
 
         {/* Close Button */}
         <button
@@ -583,7 +583,7 @@ function AppContent() {
             <div className="absolute w-[300px] h-[300px] bg-security-blue/20 blur-[100px] rounded-full pointer-events-none" />
 
             <div className="absolute z-20 pointer-events-none animate-camera-sequence flex items-center justify-center">
-              <svg viewBox="0 0 100 100" className="w-80 h-80">
+              <svg viewBox="0 0 100 100" className="w-64 h-64 sm:w-80 sm:h-80">
                 <defs>
                   <clipPath id="camera-dome-clip">
                     <path d="M13,48 A25,25 0 0,0 63,48 Z" />
@@ -645,9 +645,9 @@ function AppContent() {
               </div>
 
               <div className="animate-text-reveal flex flex-col items-center">
-                <h1 className="text-3xl font-extrabold uppercase tracking-[0.25em] mb-2 flex items-center justify-center colourful-text-gradient">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold uppercase tracking-[0.2em] sm:tracking-[0.25em] mb-2 flex items-center justify-center colourful-text-gradient">
                   <span>THRINAINA</span>
-                  <span className="font-black ml-3">SECURITY</span>
+                  <span className="font-black ml-2 sm:ml-3">SECURITY</span>
                 </h1>
                 <p className="text-[10px] tracking-[0.3em] text-security-textGray uppercase mb-8">
                   AI SMART INTEGRATIONS & SURVEILLANCE
@@ -684,7 +684,7 @@ function AppContent() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-security-bg text-slate-100 selection:bg-security-gold selection:text-security-bg">
+    <div className="flex flex-col min-h-screen bg-security-bg text-slate-100 selection:bg-security-gold selection:text-security-bg overflow-x-hidden">
       <div className="cctv-bg" aria-hidden="true" />
 
       <Navbar onProfileClick={() => setIsDashboardOpen(true)} />

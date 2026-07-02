@@ -5,10 +5,15 @@
 @tailwind utilities;
 
 @layer base {
-  body {
+  html, body {
     @apply bg-security-bg text-slate-100 font-sans antialiased overflow-x-hidden;
     background-color: #101830;
     min-height: 100vh;
+    max-width: 100%;
+  }
+
+  .react-datepicker-wrapper {
+    width: 100%;
   }
 }
 
