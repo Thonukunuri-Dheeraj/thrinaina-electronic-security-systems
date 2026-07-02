@@ -645,9 +645,11 @@ function AppContent() {
               </div>
 
               <div className="animate-text-reveal flex flex-col items-center">
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold uppercase tracking-[0.2em] sm:tracking-[0.25em] mb-2 flex items-center justify-center colourful-text-gradient">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-2 flex flex-col items-center justify-center colourful-text-gradient text-center">
                   <span>THRINAINA</span>
-                  <span className="font-black ml-2 sm:ml-3">SECURITY</span>
+                  <span className="font-black mt-1.5 text-base sm:text-lg md:text-xl tracking-[0.1em] sm:tracking-[0.15em]">
+                    ELECTRONIC SECURITY SYSTEMS
+                  </span>
                 </h1>
                 <p className="text-[10px] tracking-[0.3em] text-security-textGray uppercase mb-8">
                   AI SMART INTEGRATIONS & SURVEILLANCE
